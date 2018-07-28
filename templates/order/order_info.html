@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block EXTJS %}
+    <script type="text/javascript" src="{% static 'app/order/js/order.js' %}"></script>
+    <script type="text/javascript">
+        function changeOrderStatus(id){
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+            $.ajax({
+                url:'/axf/changeOrderStatus/',
+                data:{'order_id': id},
+                dataType:'json',
+                type:'POST',
+                headers:{'X-CSRFToken': csrf},
+                success:function(data){
+                    if(data.code == '200'){
+                        location.href = '/user/my/'
+                    }
+                },
+                error:function(data){
+                    alert('请求失败')
+                }
+            });
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% csrf_token %}
+
+    <div id="order_info" class="container">
+
+    <!--订单编号-->
+    <h3>订单编号:</h3>
+        {{ order_goods.0.order.o_num }}
+    <!--处理结束-->
+    <ul>
+        {% for order_good in order_goods %}
+        <!--所有订单信息展示-->
+            <li>
+                <!--商品名称展示-->
+                <img src="{{ order_good.goods.productimg }}">
+
+                <span> <!-- 数量展示 -->{{ order_good.goods_num }}件</span>
+            </li>
+        {% endfor %}
+        <!--订单处理结束-->
+
+    </ul>
+        <!--订单id展示-->
+        <button id="alipay" class="btn btn-success btn-block" onclick="changeOrderStatus({{ order_goods.0.order.id }})" >Alipay</button>
+
+    </div>
+
+
+{% endblock %}
